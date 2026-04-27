@@ -66,6 +66,15 @@ MainWindow::MainWindow(QWidget *parent)
     renderer->GetActiveCamera()->Elevation(30);
     renderer->ResetCameraClippingRange();
     ui->treeView->addAction(ui->actionItem_Options);
+    ui->treeView->addAction(ui->actionWireframe);
+    ui->treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
+    ui->treeView->addAction(ui->actionRemove_Selected);
+
+    QShortcut* deleteShortcut = new QShortcut(QKeySequence::Delete, ui->treeView);
+
+    connect(deleteShortcut, &QShortcut::activated,
+        this,
+        &MainWindow::on_actionRemove_Selected_triggered);
 
     // =====================================================
     // Button handling + status bar messages
@@ -79,6 +88,11 @@ MainWindow::MainWindow(QWidget *parent)
             &QPushButton::released,
             this,
             &MainWindow::handleClearButton);
+
+    connect(ui->pushButtonResetView,
+        &QPushButton::released,
+        this,
+        &MainWindow::handleResetViewButton);
 
     // Connect custom signal to status bar
     connect(this,
@@ -126,6 +140,7 @@ MainWindow::MainWindow(QWidget *parent)
             &QTreeView::clicked,
             this,
             &MainWindow::handleTreeClicked);
+
 }
 
 /*
@@ -157,6 +172,20 @@ void MainWindow::handleClearButton()
     }
 
     emit statusUpdateMessage("Cleared renderer", 3000);
+}
+
+void MainWindow::handleResetViewButton()
+{
+    if (!renderer || !renderWindow) {
+        emit statusUpdateMessage("Renderer not available", 3000);
+        return;
+    }
+
+    renderer->ResetCamera();
+    renderer->ResetCameraClippingRange();
+    renderWindow->Render();
+
+    emit statusUpdateMessage("View reset", 3000);
 }
 
 /*
@@ -236,42 +265,41 @@ void MainWindow::on_actionOpenFile_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(
         this,
-        tr("Open File"),
+        tr("Open STL File"),
         tr("C:\\"),
         tr("STL Files (*.stl);;All Files (*)")
-        );
+    );
 
     if (fileName.isEmpty()) {
-        emit statusUpdateMessage("Open File cancelled", 2000);
+        emit statusUpdateMessage("Open file cancelled", 2000);
         return;
     }
 
-    // 1) parent = chosen item 
-    QModelIndex current = ui->treeView->currentIndex();
-    if (!current.isValid()) {
-        emit statusUpdateMessage("Select a parent item in the tree first", 3000);
-        return;
+    QModelIndex parentIndex = ui->treeView->currentIndex();
+
+    // If user selected column 1, force it back to column 0
+    if (parentIndex.isValid()) {
+        parentIndex = parentIndex.sibling(parentIndex.row(), 0);
     }
 
-    QModelIndex idx0 = current.sibling(current.row(), 0);
-    ModelPart* parentPart = static_cast<ModelPart*>(idx0.internalPointer());
-    if (!parentPart) {
-        emit statusUpdateMessage("Invalid parent item", 3000);
-        return;
-    }
-
-    // 2) create new item
     QString shortName = QFileInfo(fileName).fileName();
-    ModelPart* newPart = new ModelPart({ shortName, "true" });
-    parentPart->appendChild(newPart);
 
-    partList->layoutChanged();
+    // Add new item properly through the model
+    QModelIndex newIndex = partList->appendChild(parentIndex, { shortName, "true" });
 
-    // expand parent to see new child
-    ui->treeView->expand(idx0);
+    ModelPart* newPart = static_cast<ModelPart*>(newIndex.internalPointer());
+    if (!newPart) {
+        emit statusUpdateMessage("Failed to create tree item", 3000);
+        return;
+    }
 
-    // 4) load STL + render
     newPart->loadSTL(fileName);
+
+    if (parentIndex.isValid()) {
+        ui->treeView->expand(parentIndex);
+    }
+
+    ui->treeView->setCurrentIndex(newIndex);
     updateRender();
 
     emit statusUpdateMessage("Loaded STL: " + shortName, 3000);
@@ -336,5 +364,63 @@ void MainWindow::on_actionRemove_Selected_triggered()
 }
 void MainWindow::on_actionExit_triggered()
 {
-    close();
+    QApplication::quit();
+}
+
+void MainWindow::on_actionWireframe_triggered()
+{
+    QModelIndex index = ui->treeView->currentIndex();
+
+    if (!index.isValid())
+        return;
+
+    ModelPart* part = static_cast<ModelPart*>(index.internalPointer());
+
+    if (!part)
+        return;
+
+    vtkActor* actor = part->getActor();
+
+    if (!actor)
+        return;
+
+    wireframeEnabled = !wireframeEnabled;
+
+    if (wireframeEnabled)
+    {
+        actor->GetProperty()->SetRepresentationToWireframe();
+        emit statusUpdateMessage("Wireframe enabled", 3000);
+    }
+    else
+    {
+        actor->GetProperty()->SetRepresentationToSurface();
+        emit statusUpdateMessage("Surface enabled", 3000);
+    }
+
+    renderWindow->Render();
+}
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Delete)
+    {
+        QModelIndex index = ui->treeView->currentIndex();
+
+        if (!index.isValid())
+            return;
+
+        ModelPart* part = static_cast<ModelPart*>(index.internalPointer());
+
+        if (!part)
+            return;
+
+        QModelIndex parentIndex = index.parent();
+
+        partList->removeRow(index.row(), parentIndex);
+
+        updateRender();
+
+        emit statusUpdateMessage("Model deleted", 3000);
+    }
+
+    QMainWindow::keyPressEvent(event);
 }

@@ -14,9 +14,13 @@
 #include <vtkRenderer.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <QVector>
+#include <QKeyEvent>
+#include <QShortcut>
+#include <QKeySequence>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+QT_END_NAMESPACE  
 
 class MainWindow : public QMainWindow
 {
@@ -34,6 +38,10 @@ signals:
 public slots:
     void handleLoadButton();
     void handleClearButton();
+    void handleResetViewButton();
+
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
     void on_actionOpenFile_triggered();
@@ -43,6 +51,10 @@ private slots:
                            const QVector<int> &roles);
     void on_actionRemove_Selected_triggered();
     void on_actionExit_triggered();
+
+private slots:
+    void on_actionWireframe_triggered();
+
 private:
     Ui::MainWindow *ui;
     ModelPartList* partList;
@@ -52,6 +64,7 @@ private:
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
     void updateRender();
     void updateRenderFromTree(const QModelIndex& index);
+    bool wireframeEnabled = false;
 };
 
 #endif // MAINWINDOW_H

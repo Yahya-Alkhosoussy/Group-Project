@@ -23,6 +23,7 @@
 #include <vtkShrinkFilter.h>
 #include <vtkClipDataSet.h>
 #include <vtkPlane.h>
+
 class ModelPart {
 public:
     ModelPart(const QList<QVariant>& data, ModelPart* parent = nullptr);

@@ -155,7 +155,7 @@ QModelIndex ModelPartList::appendChild(QModelIndex& parent, const QList<QVariant
 
     parentPart->appendChild(childPart);
 
-    QModelIndex child = createIndex(0, 0, childPart);
+    QModelIndex child = createIndex(parentPart->childCount() - 1, 0, childPart);
 
     endInsertRows();
 
