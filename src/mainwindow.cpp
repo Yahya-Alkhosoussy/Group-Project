@@ -20,6 +20,7 @@
 #include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
+#include "VRManager.h"
 
 /*
  * MainWindow constructor
@@ -79,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
             &QPushButton::released,
             this,
             &MainWindow::handleClearButton);
+    connect(ui->pushButtonToggleVR, &QPushButton::released, this, &MainWindow::handleToggleVRButton);
 
     // Connect custom signal to status bar
     connect(this,
@@ -126,6 +128,7 @@ MainWindow::MainWindow(QWidget *parent)
             &QTreeView::clicked,
             this,
             &MainWindow::handleTreeClicked);
+
 }
 
 /*
@@ -157,6 +160,11 @@ void MainWindow::handleClearButton()
     }
 
     emit statusUpdateMessage("Cleared renderer", 3000);
+}
+
+void MainWindow::handleToggleVRButton()
+{
+    emit statusUpdateMessage("Toggling VR", 20);
 }
 
 /*
