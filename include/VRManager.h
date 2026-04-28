@@ -1,20 +1,32 @@
 #pragma once
 
 #include <memory>
+#include <QString>
+#include <QObject>
 
 class vtkActor; // forward declaration to not include QT
 
-class VRManager {
+class VRManager : public QObject {
+    Q_OBJECT
 public:
-	VRManager(); // constructor
+	explicit VRManager(QObject* parent = nullptr); // constructor
 	~VRManager(); // destructor
 
-	bool start();			// create VR session
+	bool start(const QString& manifestDir);			// create VR session
 	void stop();			// turn off VR session
 	bool isActive() const;	// See if the VR session is currently active or not
 
 	void addActor(vtkActor* actor);
 	void removeActor(vtkActor* actor);
+    void clearActors();
+    
+signals:
+    void vrStarted();
+    void vrStopped();
+    void vrError(QString);
+    
+private slots:
+    void onRenderTick();
 
 private:
 	struct Impl;
