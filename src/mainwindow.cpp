@@ -164,6 +164,7 @@ void MainWindow::handleClearButton()
 
 void MainWindow::handleToggleVRButton()
 {
+    bool start = VRManager::start();
     emit statusUpdateMessage("Toggling VR", 20);
 }
 
