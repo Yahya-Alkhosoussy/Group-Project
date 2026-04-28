@@ -1,10 +1,17 @@
-// optiondialog.h
 #ifndef OPTIONDIALOG_H
 #define OPTIONDIALOG_H
 
 #include <QDialog>
 #include <QString>
 #include <QColor>
+
+/**
+ * @class OptionDialog
+ * @brief Dialog for editing selected model part properties.
+ *
+ * Allows the user to change the selected item's name, visibility,
+ * colour and filter options.
+ */
 
 namespace Ui {
 class OptionDialog;

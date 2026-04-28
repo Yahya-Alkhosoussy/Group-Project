@@ -1,15 +1,11 @@
-// mainwindow.h
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
 #include <QString>
 #include <QModelIndex>
-
 #include "ModelPart.h"
 #include "ModelPartList.h"
-
-// ===== VTK =====
 #include <vtkSmartPointer.h>
 #include <vtkRenderer.h>
 #include <vtkGenericOpenGLRenderWindow.h>
@@ -21,6 +17,13 @@
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE  
+
+/**
+ * @brief Main application window for the GroupProject Viewer.
+ *
+ * Handles the Qt GUI, TreeView interaction, STL loading,
+ * rendering updates, model management and VTK display.
+ */
 
 class MainWindow : public QMainWindow
 {

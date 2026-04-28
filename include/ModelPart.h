@@ -1,12 +1,3 @@
-/**     @file ModelPart.h
-  *
-  *     EEEE2076 - Software Engineering & VR Project
-  *
-  *     Template for model parts that will be added as treeview items
-  *
-  *     P Evans 2022
-  */
-
 #ifndef VIEWER_MODELPART_H
 #define VIEWER_MODELPART_H
 
@@ -14,7 +5,6 @@
 #include <QList>
 #include <QVariant>
 
-// VTK headers (ENABLE)
 #include <vtkSmartPointer.h>
 #include <vtkActor.h>
 #include <vtkSTLReader.h>
@@ -23,6 +13,14 @@
 #include <vtkShrinkFilter.h>
 #include <vtkClipDataSet.h>
 #include <vtkPlane.h>
+
+  /**
+   * @class ModelPart
+   * @brief Represents one model item in the TreeView.
+   *
+   * Stores item data, child hierarchy, visibility, colour and VTK pipeline
+   * objects used to render STL geometry.
+   */
 
 class ModelPart {
 public:
