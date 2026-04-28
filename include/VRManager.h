@@ -4,7 +4,7 @@
 #include <QString>
 #include <QObject>
 
-class vtkActor; // forward declaration to not include QT
+class vtkActor;
 
 class VRManager : public QObject {
     Q_OBJECT
@@ -21,8 +21,8 @@ public:
     void clearActors();
     
 signals:
-    void vrStarted();
-    void vrStopped();
+    void vrStarted(QString);
+    void vrStopped(QString);
     void vrError(QString);
     
 private slots:
