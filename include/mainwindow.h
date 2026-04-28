@@ -34,6 +34,7 @@ signals:
 public slots:
     void handleLoadButton();
     void handleClearButton();
+    void handleToggleVRButton();
 
 private slots:
     void on_actionOpenFile_triggered();
