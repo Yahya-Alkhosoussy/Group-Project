@@ -106,6 +106,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpenFile"/>
+    <addaction name="actionOpenFolder"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuTool">
@@ -165,6 +166,11 @@
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionOpenFolder">
+   <property name="text">
+    <string>Open STL Folder</string>
    </property>
   </action>
  </widget>

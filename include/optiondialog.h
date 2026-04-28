@@ -4,6 +4,7 @@
 
 #include <QDialog>
 #include <QString>
+#include <QColor>
 
 namespace Ui {
 class OptionDialog;
@@ -31,8 +32,12 @@ public:
     bool isClipChecked() const;
     void setClipChecked(bool checked);
 
+private slots:
+    void on_pushButtonColour_clicked();
+
 private:
     Ui::OptionDialog *ui;
+    QColor selectedColour;
 };
 
 #endif // OPTIONDIALOG_H

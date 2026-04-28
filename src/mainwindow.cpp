@@ -20,6 +20,8 @@
 #include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
+#include <QDir>
+#include <QFileInfoList>
 
 /*
  * MainWindow constructor
@@ -423,4 +425,57 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     }
 
     QMainWindow::keyPressEvent(event);
+}
+void MainWindow::on_actionOpenFolder_triggered()
+{
+    QString folderPath = QFileDialog::getExistingDirectory(
+        this,
+        tr("Select STL Folder"),
+        tr("C:\\")
+    );
+
+    if (folderPath.isEmpty()) {
+        emit statusUpdateMessage("Folder selection cancelled", 2000);
+        return;
+    }
+
+    QModelIndex current = ui->treeView->currentIndex();
+
+    if (!current.isValid()) {
+        emit statusUpdateMessage("Select parent item first", 3000);
+        return;
+    }
+
+    QModelIndex idx0 = current.sibling(current.row(), 0);
+    ModelPart* parentPart = static_cast<ModelPart*>(idx0.internalPointer());
+
+    if (!parentPart)
+        return;
+
+    QDir dir(folderPath);
+
+    QStringList filters;
+    filters << "*.stl";
+
+    QFileInfoList files = dir.entryInfoList(filters, QDir::Files);
+
+    for (const QFileInfo& fileInfo : files)
+    {
+        QString fileName = fileInfo.absoluteFilePath();
+        QString shortName = fileInfo.fileName();
+
+        ModelPart* newPart = new ModelPart({ shortName, "true" });
+
+        parentPart->appendChild(newPart);
+
+        newPart->loadSTL(fileName);
+    }
+
+    partList->layoutChanged();
+
+    ui->treeView->expand(idx0);
+
+    updateRender();
+
+    emit statusUpdateMessage("Folder loaded successfully", 3000);
 }

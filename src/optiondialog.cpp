@@ -1,6 +1,7 @@
 // optiondialog.cpp
 #include "optiondialog.h"
 #include "ui_optiondialog.h"
+#include <QColorDialog>
 
 OptionDialog::OptionDialog(QWidget *parent)
     : QDialog(parent),
@@ -76,4 +77,16 @@ bool OptionDialog::isClipChecked() const
 void OptionDialog::setClipChecked(bool checked)
 {
     ui->checkBoxClip->setChecked(checked);
+}
+void OptionDialog::on_pushButtonColour_clicked()
+{
+    QColor colour = QColorDialog::getColor(selectedColour, this);
+
+    if (colour.isValid()) {
+        selectedColour = colour;
+
+        ui->spinBoxR->setValue(colour.red());
+        ui->spinBoxG->setValue(colour.green());
+        ui->spinBoxB->setValue(colour.blue());
+    }
 }
