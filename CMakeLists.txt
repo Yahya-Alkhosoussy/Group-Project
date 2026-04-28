@@ -7,11 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets OpenGLWidgets)
 
 find_package(VTK REQUIRED COMPONENTS
+  RenderingOpenVR
   CommonCore
   FiltersSources
   InteractionStyle
-  RenderingCore
-  RenderingOpenGL2
+  RenderingCore        
   GUISupportQt
   IOGeometry
 )
@@ -50,19 +50,19 @@ target_link_libraries(GroupProject PRIVATE
   VTK::FiltersSources
   VTK::InteractionStyle
   VTK::RenderingCore
-  VTK::RenderingOpenGL2
   VTK::GUISupportQt
   VTK::IOGeometry
+  VTK::RenderingOpenVR
 )
 
 vtk_module_autoinit(
   TARGETS GroupProject
   MODULES
+    VTK::RenderingOpenVR
     VTK::CommonCore
     VTK::FiltersSources
     VTK::InteractionStyle
     VTK::RenderingCore
-    VTK::RenderingOpenGL2
     VTK::GUISupportQt
     VTK::IOGeometry
 )
@@ -90,6 +90,13 @@ set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
 # ---- Deploy Qt DLL automatically ----
 find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS
     "${Qt6_DIR}/../../../bin"
+)
+
+add_custom_command(TARGET GroupProject POST_BUILD
+    COMMAND ${WINDEPLOYQT_EXECUTABLE}
+        --debug
+        --no-translations
+        $<TARGET_FILE:GroupProject>
 )
 
 install(CODE "
