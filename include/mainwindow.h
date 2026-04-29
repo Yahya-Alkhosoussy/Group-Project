@@ -42,6 +42,9 @@ public slots:
     void handleLoadButton();
     void handleClearButton();
     void handleResetViewButton();
+    void handleStartVRButton();
+    void handleStopVRButton();
+    void handleTransparencySlider(int value);
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;

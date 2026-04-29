@@ -20,6 +20,7 @@
 #include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkProperty.h>
 #include <QDir>
 #include <QFileInfoList>
 
@@ -95,6 +96,21 @@ MainWindow::MainWindow(QWidget *parent)
         &QPushButton::released,
         this,
         &MainWindow::handleResetViewButton);
+
+    connect(ui->pushButtonStartVR,
+        &QPushButton::released,
+        this,
+        &MainWindow::handleStartVRButton);
+
+    connect(ui->pushButtonStopVR,
+        &QPushButton::released,
+        this,
+        &MainWindow::handleStopVRButton);
+
+    connect(ui->horizontalSliderOpacity,
+        &QSlider::valueChanged,
+        this,
+        &MainWindow::handleTransparencySlider);
 
     // Connect custom signal to status bar
     connect(this,
@@ -188,6 +204,15 @@ void MainWindow::handleResetViewButton()
     renderWindow->Render();
 
     emit statusUpdateMessage("View reset", 3000);
+}
+void MainWindow::handleStartVRButton()
+{
+    emit statusUpdateMessage("VR start requested - VR module not connected yet", 3000);
+}
+
+void MainWindow::handleStopVRButton()
+{
+    emit statusUpdateMessage("VR stop requested - VR module not connected yet", 3000);
 }
 
 /*
@@ -478,4 +503,35 @@ void MainWindow::on_actionOpenFolder_triggered()
     updateRender();
 
     emit statusUpdateMessage("Folder loaded successfully", 3000);
+}
+void MainWindow::handleTransparencySlider(int value)
+{
+    QModelIndex index = ui->treeView->currentIndex();
+
+    if (!index.isValid()) {
+        emit statusUpdateMessage("Select a model part first", 3000);
+        return;
+    }
+
+    index = index.sibling(index.row(), 0);
+
+    ModelPart* part = static_cast<ModelPart*>(index.internalPointer());
+
+    if (!part || !part->getActor()) {
+        emit statusUpdateMessage("No actor found for selected item", 3000);
+        return;
+    }
+
+    // Transparency slider:
+    // 0 = solid
+    // 100 = invisible
+    double opacity = 1.0 - (value / 100.0);
+
+    part->getActor()->GetProperty()->SetOpacity(opacity);
+
+    renderWindow->Render();
+
+    emit statusUpdateMessage(
+        QString("Transparency: %1%").arg(value),
+        1000);
 }
