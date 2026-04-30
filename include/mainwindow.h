@@ -8,6 +8,7 @@
 
 #include "ModelPart.h"
 #include "ModelPartList.h"
+#include "VRManager.h"
 
 // ===== VTK =====
 #include <vtkSmartPointer.h>
@@ -47,12 +48,15 @@ private slots:
 private:
     Ui::MainWindow *ui;
     ModelPartList* partList;
+    std::unique_ptr<VRManager> m_vr;
 
     // ===== Exercise 3.3.2  =====
     vtkSmartPointer<vtkRenderer> renderer;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
     void updateRender();
     void updateRenderFromTree(const QModelIndex& index);
+    
+    void pushActorsToVR(const QModelIndex& index);
 };
 
 #endif // MAINWINDOW_H
