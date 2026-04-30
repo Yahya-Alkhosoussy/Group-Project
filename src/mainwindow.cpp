@@ -97,15 +97,10 @@ MainWindow::MainWindow(QWidget *parent)
         this,
         &MainWindow::handleResetViewButton);
 
-    connect(ui->pushButtonStartVR,
+    connect(ui->pushButtonToggleVR,
         &QPushButton::released,
         this,
-        &MainWindow::handleStartVRButton);
-
-    connect(ui->pushButtonStopVR,
-        &QPushButton::released,
-        this,
-        &MainWindow::handleStopVRButton);
+        &MainWindow::handleToggleVRButton);
 
     connect(ui->horizontalSliderOpacity,
         &QSlider::valueChanged,
@@ -169,21 +164,13 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-/*
- * Slot triggered when the "Load" button is clicked
- */
 void MainWindow::handleLoadButton()
 {
     emit statusUpdateMessage(QString("Load button was clicked"), 0);
 }
 
-/*
- * Slot triggered when the "Clear" button is clicked
- */
 void MainWindow::handleClearButton()
 {
-    // 1) clear renderer
     if (renderer) {
         renderer->RemoveAllViewProps();
         renderWindow->Render();
@@ -205,14 +192,9 @@ void MainWindow::handleResetViewButton()
 
     emit statusUpdateMessage("View reset", 3000);
 }
-void MainWindow::handleStartVRButton()
+void MainWindow::handleToggleVRButton()
 {
-    emit statusUpdateMessage("VR start requested - VR module not connected yet", 3000);
-}
-
-void MainWindow::handleStopVRButton()
-{
-    emit statusUpdateMessage("VR stop requested - VR module not connected yet", 3000);
+    emit statusUpdateMessage("VR toggle requested", 3000);
 }
 
 /*

@@ -42,8 +42,7 @@ public slots:
     void handleLoadButton();
     void handleClearButton();
     void handleResetViewButton();
-    void handleStartVRButton();
-    void handleStopVRButton();
+    void handleToggleVRButton();
     void handleTransparencySlider(int value);
 
 protected:
