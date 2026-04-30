@@ -26,11 +26,13 @@ qt_add_executable(GroupProject
   src/ModelPart.cpp
   src/ModelPartList.cpp
   src/optiondialog.cpp
+  src/VRManager.cpp
 
   include/mainwindow.h
   include/ModelPart.h
   include/ModelPartList.h
   include/optiondialog.h
+  include/VRManager.h
 
   ui/mainwindow.ui
   ui/optiondialog.ui
