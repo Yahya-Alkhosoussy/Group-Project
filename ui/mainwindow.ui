@@ -41,15 +41,9 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QPushButton" name="pushButtonLoad">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+         <widget class="QPushButton" name="pushButtonShowAll">
           <property name="text">
-           <string>Load</string>
+           <string>Show All</string>
           </property>
          </widget>
         </item>
@@ -62,7 +56,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Clear</string>
+           <string>Clear View</string>
           </property>
          </widget>
         </item>
@@ -209,22 +203,5 @@
  <resources>
   <include location="icon.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>pushButtonLoad</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>141</x>
-     <y>416</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

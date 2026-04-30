@@ -82,10 +82,6 @@ MainWindow::MainWindow(QWidget *parent)
     // =====================================================
     // Button handling + status bar messages
     // =====================================================
-    connect(ui->pushButtonLoad,
-            &QPushButton::released,
-            this,
-            &MainWindow::handleLoadButton);
 
     connect(ui->pushButtonClear,
             &QPushButton::released,
@@ -107,11 +103,18 @@ MainWindow::MainWindow(QWidget *parent)
         this,
         &MainWindow::handleTransparencySlider);
 
+    connect(ui->pushButtonShowAll,
+        &QPushButton::released,
+        this,
+        &MainWindow::handleShowAllButton);
+
     // Connect custom signal to status bar
     connect(this,
             &MainWindow::statusUpdateMessage,
             ui->statusbar,
             &QStatusBar::showMessage);
+
+
 
     // =====================================================
     // Model Based TreeView
@@ -163,10 +166,6 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-void MainWindow::handleLoadButton()
-{
-    emit statusUpdateMessage(QString("Load button was clicked"), 0);
 }
 
 void MainWindow::handleClearButton()
@@ -244,7 +243,6 @@ void MainWindow::on_actionItem_Options_triggered()
     // 2) If accepted, save back into the item
     if (dialog.exec() == QDialog::Accepted) {
 
-        // Update name
         part->set(0, dialog.getName());
 
         // Update visible
@@ -516,4 +514,12 @@ void MainWindow::handleTransparencySlider(int value)
     emit statusUpdateMessage(
         QString("Transparency: %1%").arg(value),
         1000);
+}
+void MainWindow::handleShowAllButton()
+{
+    updateRender();
+    renderer->ResetCamera();
+    renderWindow->Render();
+
+    emit statusUpdateMessage("All visible models restored", 3000);
 }

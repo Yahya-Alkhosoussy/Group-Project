@@ -39,11 +39,11 @@ signals:
     void statusUpdateMessage(const QString &message, int timeout);
 
 public slots:
-    void handleLoadButton();
     void handleClearButton();
     void handleResetViewButton();
     void handleToggleVRButton();
     void handleTransparencySlider(int value);
+    void handleShowAllButton();
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;
