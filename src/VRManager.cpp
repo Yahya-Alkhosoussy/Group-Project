@@ -1,4 +1,7 @@
 #include "VRManager.h"
+#include "VRInteractorStyle.h"
+
+#include <set>
 
 #include <QTimer>
 #include <QDir>
@@ -26,6 +29,7 @@ struct VRManager::Impl {
 	vtkSmartPointer<vtkOpenVRRenderer> renderer;
     vtkSmartPointer<vtkOpenVRCamera> camera;
 	vtkSmartPointer<vtkSkybox> skybox;
+	std::set<vtkActor*> initialisedActors;
     QTimer* timer = nullptr;
 	bool active = false;
 };
@@ -72,7 +76,9 @@ bool VRManager::start(const QString& manifestDir) {
 	
 	m_impl->renderWindow->Initialize();
 
-	m_impl->style = vtkSmartPointer<vtkOpenVRInteractorStyle>::New();
+	auto myStyle = vtkSmartPointer<VRInteractorStyle>::New();
+	myStyle->setManager(this);
+	m_impl->style = myStyle;
 	m_impl->interactor->SetInteractorStyle(m_impl->style);
 
 	if (m_impl->renderWindow->GetHMD() == nullptr) {
@@ -83,6 +89,7 @@ bool VRManager::start(const QString& manifestDir) {
 		m_impl->renderWindow	= nullptr;
 		m_impl->renderer		= nullptr;
 		m_impl->skybox			= nullptr;
+		m_impl->initialisedActors.clear();
 		emit vrError("Could not start VR session");
 		return false;
 	}
@@ -154,6 +161,8 @@ void VRManager::stop() {
 	m_impl->camera = nullptr;
 	m_impl->renderWindow = nullptr;
 	m_impl->renderer = nullptr;
+	m_impl->skybox = nullptr;
+	m_impl->initialisedActors.clear();
 
 	m_impl->active = false;
 	emit vrStopped("Stopped the VR Application");
@@ -176,12 +185,17 @@ void VRManager::onRenderTick(){
 }
 
 void VRManager::addActor(vtkActor* actor) {
-	if (m_impl->active && m_impl->renderer != nullptr && actor != nullptr) {
+	if (!m_impl->active || m_impl->renderer == nullptr || actor == nullptr) {
+		emit vrError("Could not add actor.");
+		return;
+	}
+	if (m_impl->initialisedActors.find(actor) == m_impl->initialisedActors.end()) {
 		actor->SetPosition(0, 0.5, -3.0);
 		actor->SetScale(0.01);
 		actor->SetOrientation(270.0, 0.0, 0.0);
-		m_impl->renderer->AddActor(actor);
+		m_impl->initialisedActors.insert(actor);
 	}
+	m_impl->renderer->AddActor(actor);
 }
 
 void VRManager::removeActor(vtkActor* actor) {
@@ -195,4 +209,20 @@ void VRManager::clearActors() {
 
 	m_impl->renderer->RemoveAllViewProps();
 	m_impl->renderer->AddActor(m_impl->skybox);
+}
+
+void VRManager::resetActors() {
+	auto actors = m_impl->renderer->GetActors();
+	actors->InitTraversal();
+	vtkActor* actor = actors->GetNextActor();
+	while (actor != nullptr) {
+		if (actor == m_impl->skybox.GetPointer()) {
+			actor = actors->GetNextActor();
+			continue; // leave the skybox untouched
+		}
+		actor->SetPosition(0, 0.5, -3.0);
+		actor->SetScale(0.01);
+		actor->SetOrientation(270.0, 0.0, 0.0);
+		actor = actors->GetNextActor();
+	}
 }
