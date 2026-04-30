@@ -174,7 +174,9 @@ void MainWindow::handleClearButton()
     // 1) clear renderer
     if (renderer) {
         renderer->RemoveAllViewProps();
-        renderWindow->Render();
+        if (!m_vr->isActive())
+            renderWindow->Render();
+        else m_vr->clearActors();
     }
 
     emit statusUpdateMessage("Cleared renderer", 3000);
@@ -188,7 +190,9 @@ void MainWindow::handleToggleVRButton()
         return;
     }
 
-    QString manifestDir = QCoreApplication::applicationDirPath() + "/../vrbindings";
+    handleClearButton();
+
+    QString manifestDir = QCoreApplication::applicationDirPath() + "/../vrbindings/";
     bool started = m_vr->start(manifestDir);
     if (started) { 
         for (int i = 0; i < partList->rowCount(QModelIndex()); i++) {
@@ -337,13 +341,15 @@ void MainWindow::on_actionOpenFile_triggered()
 }
 void MainWindow::updateRender()
 {
-    renderer->RemoveAllViewProps();
     if (m_vr->isActive()) m_vr->clearActors();
+    renderer->RemoveAllViewProps();
+    
 
     for (int i = 0; i < partList->rowCount(QModelIndex()); ++i)
         updateRenderFromTree(partList->index(i,0,QModelIndex()));
 
-    ui->vtkWidget->renderWindow()->Render();
+    if (!m_vr->isActive())
+        ui->vtkWidget->renderWindow()->Render();
 }
 
 void MainWindow::updateRenderFromTree(const QModelIndex &index)
@@ -359,8 +365,12 @@ void MainWindow::updateRenderFromTree(const QModelIndex &index)
     if (a) {
         a->SetVisibility(part->visible() ? 1 : 0);
         if (part->visible()) {
-            renderer->AddActor(a);
-            if (m_vr->isActive()) m_vr->addActor(a);
+            if (m_vr->isActive()) {
+                m_vr->addActor(a);
+            }
+            else {
+                renderer->AddActor(a);
+            }
         }
     }
 
