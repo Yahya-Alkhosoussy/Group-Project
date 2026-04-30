@@ -194,4 +194,5 @@ void VRManager::clearActors() {
 	if (!m_impl->active || m_impl->renderer == nullptr) return;
 
 	m_impl->renderer->RemoveAllViewProps();
+	m_impl->renderer->AddActor(m_impl->skybox);
 }
