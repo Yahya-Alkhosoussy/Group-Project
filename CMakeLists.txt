@@ -19,12 +19,14 @@ qt_add_executable(GroupProject
   src/ModelPartList.cpp
   src/optiondialog.cpp
   src/VRManager.cpp
+  src/VRInteractorStyle.cpp
 
   include/mainwindow.h
   include/ModelPart.h
   include/ModelPartList.h
   include/optiondialog.h
   include/VRManager.h
+  include/VRInteractorStyle.h
 
   ui/mainwindow.ui
   ui/optiondialog.ui
