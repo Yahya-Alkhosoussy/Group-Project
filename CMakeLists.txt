@@ -6,15 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets OpenGLWidgets)
 
-find_package(VTK REQUIRED COMPONENTS
-  RenderingOpenVR
-  CommonCore
-  FiltersSources
-  InteractionStyle
-  RenderingCore        
-  GUISupportQt
-  IOGeometry
-)
+find_package(VTK REQUIRED COMPONENTS)
 
 qt_standard_project_setup()
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_SOURCE_DIR}/ui)
