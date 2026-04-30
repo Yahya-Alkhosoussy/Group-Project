@@ -20,7 +20,7 @@
 #include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
-#include "VRManager.h"
+
 
 /*
  * MainWindow constructor
@@ -80,7 +80,11 @@ MainWindow::MainWindow(QWidget *parent)
             &QPushButton::released,
             this,
             &MainWindow::handleClearButton);
-    connect(ui->pushButtonToggleVR, &QPushButton::released, this, &MainWindow::handleToggleVRButton);
+
+    connect(ui->pushButtonToggleVR, 
+            &QPushButton::released, 
+            this, 
+            &MainWindow::handleToggleVRButton);
 
     // Connect custom signal to status bar
     connect(this,
@@ -128,7 +132,21 @@ MainWindow::MainWindow(QWidget *parent)
             &QTreeView::clicked,
             this,
             &MainWindow::handleTreeClicked);
+  
+    m_vr = std::make_unique<VRManager>(this);
+    connect(m_vr.get(), &VRManager::vrError, this, [this](const QString& msg) {
+        emit statusUpdateMessage("VR error: " + msg, 5000);
+    });
 
+    connect(m_vr.get(), &VRManager::vrStarted, this,
+        [this](const QString& msg) {
+            emit statusUpdateMessage(msg, 3000);
+        });
+
+    connect(m_vr.get(), &VRManager::vrStopped, this,
+        [this](const QString& msg) {
+            emit statusUpdateMessage(msg, 3000);
+        });
 }
 
 /*
@@ -164,8 +182,40 @@ void MainWindow::handleClearButton()
 
 void MainWindow::handleToggleVRButton()
 {
-    bool start = VRManager::start();
-    emit statusUpdateMessage("Toggling VR", 20);
+    if (m_vr->isActive()) {
+        m_vr->stop();
+        ui->pushButtonToggleVR->setText("Start VR");
+        return;
+    }
+
+    QString manifestDir = QCoreApplication::applicationDirPath() + "/../vrbindings";
+    bool started = m_vr->start(manifestDir);
+    if (started) { 
+        for (int i = 0; i < partList->rowCount(QModelIndex()); i++) {
+            pushActorsToVR(partList->index(i, 0, QModelIndex()));
+        }
+        emit statusUpdateMessage("Toggling VR", 20); 
+        ui->pushButtonToggleVR->setText("Stop VR");
+    }
+
+}
+
+void MainWindow::pushActorsToVR(const QModelIndex& index) {
+    if (!index.isValid()) return; // do nothing
+    QModelIndex idx0 = index.sibling(index.row(), 0);
+    ModelPart* part = static_cast<ModelPart*>(idx0.internalPointer());
+    if (!part) return;
+
+    vtkActor* actor = part->getActor();
+    if (actor && part->visible()) {
+        m_vr->addActor(actor);
+    }
+
+    int rows = partList->rowCount(idx0);
+    for (int i = 0; i < rows; i++) {
+        pushActorsToVR(partList->index(i, 0, idx0)); // run the function again for any siblings or children.
+    }
+
 }
 
 /*
@@ -288,6 +338,7 @@ void MainWindow::on_actionOpenFile_triggered()
 void MainWindow::updateRender()
 {
     renderer->RemoveAllViewProps();
+    if (m_vr->isActive()) m_vr->clearActors();
 
     for (int i = 0; i < partList->rowCount(QModelIndex()); ++i)
         updateRenderFromTree(partList->index(i,0,QModelIndex()));
@@ -307,8 +358,10 @@ void MainWindow::updateRenderFromTree(const QModelIndex &index)
     vtkActor* a = part->getActor();   // or part->getActor().GetPointer() ตามที่เธอทำไว้
     if (a) {
         a->SetVisibility(part->visible() ? 1 : 0);
-        if (part->visible())
+        if (part->visible()) {
             renderer->AddActor(a);
+            if (m_vr->isActive()) m_vr->addActor(a);
+        }
     }
 
     int rows = partList->rowCount(idx0);
