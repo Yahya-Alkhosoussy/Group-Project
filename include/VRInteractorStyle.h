@@ -12,6 +12,7 @@ public:
 	void setManager(VRManager* manager) { m_manager = manager; }
 
 	void OnMenu3D(vtkEventData* edata) override;
+	void OnNextPose3D(vtkEventData* edata) override;
 
 protected:
 	VRInteractorStyle() = default;
