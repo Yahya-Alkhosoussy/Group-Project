@@ -32,6 +32,7 @@ struct VRManager::Impl {
 	std::set<vtkActor*> initialisedActors;
     QTimer* timer = nullptr;
 	bool active = false;
+	bool animating = false;
 };
 
 VRManager::VRManager(QObject* parent) : QObject(parent), m_impl(std::make_unique<Impl>()) {
@@ -180,6 +181,26 @@ void VRManager::onRenderTick(){
 		m_impl->renderer == nullptr) {
 		return;
 	}
+	if (m_impl->animating) {
+		double x_angle = 0.0;
+		double y_angle = 0.0;
+		double z_angle = 0.0;
+
+		auto actors = m_impl->renderer->GetActors();
+		actors->InitTraversal();
+		vtkActor* actor = actors->GetNextActor();
+		
+		while (actor != nullptr) {
+			if (actor == m_impl->skybox.GetPointer()) {
+				actor = actors->GetNextActor();
+				continue; // leave the skybox untouched
+			}
+
+			actor->RotateZ(0.1);
+			actor = actors->GetNextActor();
+		}
+	}
+
 	m_impl->interactor->DoOneEvent(m_impl->renderWindow, m_impl->renderer);
 	
 }
@@ -225,4 +246,8 @@ void VRManager::resetActors() {
 		actor->SetOrientation(270.0, 0.0, 0.0);
 		actor = actors->GetNextActor();
 	}
+}
+
+void VRManager::toggleAnimation() {
+	m_impl->animating = !m_impl->animating; // the not inverts it no matter the state.
 }
