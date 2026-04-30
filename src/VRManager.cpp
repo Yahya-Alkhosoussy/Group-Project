@@ -15,6 +15,9 @@
 #include <vtkSkybox.h>
 #include <vtkTexture.h>
 #include <vtkHDRReader.h>
+#include <vtkImageData.h>
+#include <vtkImageCast.h>
+#include <vtkImageShiftScale.h>
 
 struct VRManager::Impl {
 	vtkSmartPointer<vtkOpenVRRenderWindow> renderWindow;
@@ -95,11 +98,34 @@ bool VRManager::start(const QString& manifestDir) {
 	reader->SetFileName(skyboxPath.toStdString().c_str());
 	reader->Update();
 
+	auto img = reader->GetOutput();
+	qDebug() << "Image dimensions:"
+		<< img->GetDimensions()[0] << "x"
+		<< img->GetDimensions()[1];
+	qDebug() << "Number of components:"
+		<< img->GetNumberOfScalarComponents();
+	qDebug() << "Scalar type:"
+		<< img->GetScalarTypeAsString();
+
+	// shift is for the lighting and brightness
+	auto shift = vtkSmartPointer<vtkImageShiftScale>::New();
+	shift->SetInputConnection(reader->GetOutputPort());
+	shift->SetScale(25.0);
+	shift->ClampOverflowOn();
+	shift->Update();
+
+	// cast forces the texture to work with HDR's float values properly
+	auto cast = vtkSmartPointer<vtkImageCast>::New();
+	cast->SetInputConnection(shift->GetOutputPort());
+	cast->SetOutputScalarTypeToUnsignedChar();
+	cast->Update();
+
 	auto texture = vtkSmartPointer<vtkTexture>::New();
+	texture->SetInputConnection(cast->GetOutputPort());
 	texture->MipmapOn();
 	texture->InterpolateOn();
-	texture->SetInputConnection(reader->GetOutputPort());
-
+	texture->UseSRGBColorSpaceOff();
+	texture->Update();
 
 	m_impl->skybox->SetProjection(vtkSkybox::Sphere);
 	m_impl->skybox->SetTexture(texture);
