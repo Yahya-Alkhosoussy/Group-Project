@@ -19,6 +19,7 @@ public:
 	void addActor(vtkActor* actor);
 	void removeActor(vtkActor* actor);
     void clearActors();
+	void resetActors();
     
 signals:
     void vrStarted(QString);
