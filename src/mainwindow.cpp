@@ -108,10 +108,6 @@ MainWindow::MainWindow(QWidget *parent)
         &QPushButton::released,
         this,
         &MainWindow::handleShowAllButton);
-    connect(ui->pushButtonToggleVR, 
-            &QPushButton::released, 
-            this, 
-            &MainWindow::handleToggleVRButton);
 
     // Connect custom signal to status bar
     connect(this,
