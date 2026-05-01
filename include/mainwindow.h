@@ -6,6 +6,9 @@
 #include <QModelIndex>
 #include "ModelPart.h"
 #include "ModelPartList.h"
+#include "VRManager.h"
+
+// ===== VTK =====
 #include <vtkSmartPointer.h>
 #include <vtkRenderer.h>
 #include <vtkGenericOpenGLRenderWindow.h>
@@ -64,6 +67,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     ModelPartList* partList;
+    std::unique_ptr<VRManager> m_vr;
 
     // ===== Exercise 3.3.2  =====
     vtkSmartPointer<vtkRenderer> renderer;
@@ -71,6 +75,8 @@ private:
     void updateRender();
     void updateRenderFromTree(const QModelIndex& index);
     bool wireframeEnabled = false;
+    
+    void pushActorsToVR(const QModelIndex& index);
 };
 
 #endif // MAINWINDOW_H
