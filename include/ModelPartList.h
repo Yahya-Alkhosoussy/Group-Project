@@ -1,23 +1,20 @@
-/**     @file ModelPartList.h
-  *
-  *     EEEE2076 - Software Engineering & VR Project
-  *
-  *     Template for model part list that will be used to create the trewview.
-  *
-  *     P Evans 2022
-  */
-  
 #ifndef VIEWER_MODELPARTLIST_H
 #define VIEWER_MODELPARTLIST_H
 
-
 #include "ModelPart.h"
-
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QVariant>
 #include <QString>
 #include <QList>
+
+/**
+ * @class ModelPartList
+ * @brief Qt tree model used to manage ModelPart objects.
+ *
+ * Provides the data model behind the TreeView, including hierarchy,
+ * editing, inserting and removing model parts.
+ */
 
 class ModelPart;
 

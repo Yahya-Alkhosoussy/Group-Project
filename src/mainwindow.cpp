@@ -20,6 +20,9 @@
 #include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkProperty.h>
+#include <QDir>
+#include <QFileInfoList>
 
 
 /*
@@ -67,20 +70,44 @@ MainWindow::MainWindow(QWidget *parent)
     renderer->GetActiveCamera()->Elevation(30);
     renderer->ResetCameraClippingRange();
     ui->treeView->addAction(ui->actionItem_Options);
+    ui->treeView->addAction(ui->actionWireframe);
+    ui->treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
+    ui->treeView->addAction(ui->actionRemove_Selected);
+
+    QShortcut* deleteShortcut = new QShortcut(QKeySequence::Delete, ui->treeView);
+
+    connect(deleteShortcut, &QShortcut::activated,
+        this,
+        &MainWindow::on_actionRemove_Selected_triggered);
 
     // =====================================================
     // Button handling + status bar messages
     // =====================================================
-    connect(ui->pushButtonLoad,
-            &QPushButton::released,
-            this,
-            &MainWindow::handleLoadButton);
 
     connect(ui->pushButtonClear,
             &QPushButton::released,
             this,
             &MainWindow::handleClearButton);
 
+    connect(ui->pushButtonResetView,
+        &QPushButton::released,
+        this,
+        &MainWindow::handleResetViewButton);
+
+    connect(ui->pushButtonToggleVR,
+        &QPushButton::released,
+        this,
+        &MainWindow::handleToggleVRButton);
+
+    connect(ui->horizontalSliderOpacity,
+        &QSlider::valueChanged,
+        this,
+        &MainWindow::handleTransparencySlider);
+
+    connect(ui->pushButtonShowAll,
+        &QPushButton::released,
+        this,
+        &MainWindow::handleShowAllButton);
     connect(ui->pushButtonToggleVR, 
             &QPushButton::released, 
             this, 
@@ -91,6 +118,8 @@ MainWindow::MainWindow(QWidget *parent)
             &MainWindow::statusUpdateMessage,
             ui->statusbar,
             &QStatusBar::showMessage);
+
+
 
     // =====================================================
     // Model Based TreeView
@@ -132,6 +161,7 @@ MainWindow::MainWindow(QWidget *parent)
             &QTreeView::clicked,
             this,
             &MainWindow::handleTreeClicked);
+
   
     m_vr = std::make_unique<VRManager>(this);
     connect(m_vr.get(), &VRManager::vrError, this, [this](const QString& msg) {
@@ -158,20 +188,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-/*
- * Slot triggered when the "Load" button is clicked
- */
-void MainWindow::handleLoadButton()
-{
-    emit statusUpdateMessage(QString("Load button was clicked"), 0);
-}
-
-/*
- * Slot triggered when the "Clear" button is clicked
- */
 void MainWindow::handleClearButton()
 {
-    // 1) clear renderer
     if (renderer) {
         renderer->RemoveAllViewProps();
         if (!m_vr->isActive())
@@ -180,6 +198,20 @@ void MainWindow::handleClearButton()
     }
 
     emit statusUpdateMessage("Cleared renderer", 3000);
+}
+
+void MainWindow::handleResetViewButton()
+{
+    if (!renderer || !renderWindow) {
+        emit statusUpdateMessage("Renderer not available", 3000);
+        return;
+    }
+
+    renderer->ResetCamera();
+    renderer->ResetCameraClippingRange();
+    renderWindow->Render();
+
+    emit statusUpdateMessage("View reset", 3000);
 }
 
 void MainWindow::handleToggleVRButton()
@@ -269,7 +301,6 @@ void MainWindow::on_actionItem_Options_triggered()
     // 2) If accepted, save back into the item
     if (dialog.exec() == QDialog::Accepted) {
 
-        // Update name
         part->set(0, dialog.getName());
 
         // Update visible
@@ -299,42 +330,41 @@ void MainWindow::on_actionOpenFile_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(
         this,
-        tr("Open File"),
+        tr("Open STL File"),
         tr("C:\\"),
         tr("STL Files (*.stl);;All Files (*)")
-        );
+    );
 
     if (fileName.isEmpty()) {
-        emit statusUpdateMessage("Open File cancelled", 2000);
+        emit statusUpdateMessage("Open file cancelled", 2000);
         return;
     }
 
-    // 1) parent = chosen item 
-    QModelIndex current = ui->treeView->currentIndex();
-    if (!current.isValid()) {
-        emit statusUpdateMessage("Select a parent item in the tree first", 3000);
-        return;
+    QModelIndex parentIndex = ui->treeView->currentIndex();
+
+    // If user selected column 1, force it back to column 0
+    if (parentIndex.isValid()) {
+        parentIndex = parentIndex.sibling(parentIndex.row(), 0);
     }
 
-    QModelIndex idx0 = current.sibling(current.row(), 0);
-    ModelPart* parentPart = static_cast<ModelPart*>(idx0.internalPointer());
-    if (!parentPart) {
-        emit statusUpdateMessage("Invalid parent item", 3000);
-        return;
-    }
-
-    // 2) create new item
     QString shortName = QFileInfo(fileName).fileName();
-    ModelPart* newPart = new ModelPart({ shortName, "true" });
-    parentPart->appendChild(newPart);
 
-    partList->layoutChanged();
+    // Add new item properly through the model
+    QModelIndex newIndex = partList->appendChild(parentIndex, { shortName, "true" });
 
-    // expand parent to see new child
-    ui->treeView->expand(idx0);
+    ModelPart* newPart = static_cast<ModelPart*>(newIndex.internalPointer());
+    if (!newPart) {
+        emit statusUpdateMessage("Failed to create tree item", 3000);
+        return;
+    }
 
-    // 4) load STL + render
     newPart->loadSTL(fileName);
+
+    if (parentIndex.isValid()) {
+        ui->treeView->expand(parentIndex);
+    }
+
+    ui->treeView->setCurrentIndex(newIndex);
     updateRender();
 
     emit statusUpdateMessage("Loaded STL: " + shortName, 3000);
@@ -408,5 +438,155 @@ void MainWindow::on_actionRemove_Selected_triggered()
 }
 void MainWindow::on_actionExit_triggered()
 {
-    close();
+    QApplication::quit();
+}
+
+void MainWindow::on_actionWireframe_triggered()
+{
+    QModelIndex index = ui->treeView->currentIndex();
+
+    if (!index.isValid())
+        return;
+
+    ModelPart* part = static_cast<ModelPart*>(index.internalPointer());
+
+    if (!part)
+        return;
+
+    vtkActor* actor = part->getActor();
+
+    if (!actor)
+        return;
+
+    wireframeEnabled = !wireframeEnabled;
+
+    if (wireframeEnabled)
+    {
+        actor->GetProperty()->SetRepresentationToWireframe();
+        emit statusUpdateMessage("Wireframe enabled", 3000);
+    }
+    else
+    {
+        actor->GetProperty()->SetRepresentationToSurface();
+        emit statusUpdateMessage("Surface enabled", 3000);
+    }
+
+    renderWindow->Render();
+}
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Delete)
+    {
+        QModelIndex index = ui->treeView->currentIndex();
+
+        if (!index.isValid())
+            return;
+
+        ModelPart* part = static_cast<ModelPart*>(index.internalPointer());
+
+        if (!part)
+            return;
+
+        QModelIndex parentIndex = index.parent();
+
+        partList->removeRow(index.row(), parentIndex);
+
+        updateRender();
+
+        emit statusUpdateMessage("Model deleted", 3000);
+    }
+
+    QMainWindow::keyPressEvent(event);
+}
+void MainWindow::on_actionOpenFolder_triggered()
+{
+    QString folderPath = QFileDialog::getExistingDirectory(
+        this,
+        tr("Select STL Folder"),
+        tr("C:\\")
+    );
+
+    if (folderPath.isEmpty()) {
+        emit statusUpdateMessage("Folder selection cancelled", 2000);
+        return;
+    }
+
+    QModelIndex current = ui->treeView->currentIndex();
+
+    if (!current.isValid()) {
+        emit statusUpdateMessage("Select parent item first", 3000);
+        return;
+    }
+
+    QModelIndex idx0 = current.sibling(current.row(), 0);
+    ModelPart* parentPart = static_cast<ModelPart*>(idx0.internalPointer());
+
+    if (!parentPart)
+        return;
+
+    QDir dir(folderPath);
+
+    QStringList filters;
+    filters << "*.stl";
+
+    QFileInfoList files = dir.entryInfoList(filters, QDir::Files);
+
+    for (const QFileInfo& fileInfo : files)
+    {
+        QString fileName = fileInfo.absoluteFilePath();
+        QString shortName = fileInfo.fileName();
+
+        ModelPart* newPart = new ModelPart({ shortName, "true" });
+
+        parentPart->appendChild(newPart);
+
+        newPart->loadSTL(fileName);
+    }
+
+    partList->layoutChanged();
+
+    ui->treeView->expand(idx0);
+
+    updateRender();
+
+    emit statusUpdateMessage("Folder loaded successfully", 3000);
+}
+void MainWindow::handleTransparencySlider(int value)
+{
+    QModelIndex index = ui->treeView->currentIndex();
+
+    if (!index.isValid()) {
+        emit statusUpdateMessage("Select a model part first", 3000);
+        return;
+    }
+
+    index = index.sibling(index.row(), 0);
+
+    ModelPart* part = static_cast<ModelPart*>(index.internalPointer());
+
+    if (!part || !part->getActor()) {
+        emit statusUpdateMessage("No actor found for selected item", 3000);
+        return;
+    }
+
+    // Transparency slider:
+    // 0 = solid
+    // 100 = invisible
+    double opacity = 1.0 - (value / 100.0);
+
+    part->getActor()->GetProperty()->SetOpacity(opacity);
+
+    renderWindow->Render();
+
+    emit statusUpdateMessage(
+        QString("Transparency: %1%").arg(value),
+        1000);
+}
+void MainWindow::handleShowAllButton()
+{
+    updateRender();
+    renderer->ResetCamera();
+    renderWindow->Render();
+
+    emit statusUpdateMessage("All visible models restored", 3000);
 }

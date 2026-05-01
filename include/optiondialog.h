@@ -1,9 +1,17 @@
-// optiondialog.h
 #ifndef OPTIONDIALOG_H
 #define OPTIONDIALOG_H
 
 #include <QDialog>
 #include <QString>
+#include <QColor>
+
+/**
+ * @class OptionDialog
+ * @brief Dialog for editing selected model part properties.
+ *
+ * Allows the user to change the selected item's name, visibility,
+ * colour and filter options.
+ */
 
 namespace Ui {
 class OptionDialog;
@@ -31,8 +39,12 @@ public:
     bool isClipChecked() const;
     void setClipChecked(bool checked);
 
+private slots:
+    void on_pushButtonColour_clicked();
+
 private:
     Ui::OptionDialog *ui;
+    QColor selectedColour;
 };
 
 #endif // OPTIONDIALOG_H
