@@ -220,7 +220,7 @@ void MainWindow::handleToggleVRButton()
 
     handleClearButton();
 
-    QString manifestDir = QCoreApplication::applicationDirPath() + "/../vrbindings/";
+    QString manifestDir = QCoreApplication::applicationDirPath() + "/vrbindings/";
     bool started = m_vr->start(manifestDir);
     if (started) { 
         for (int i = 0; i < partList->rowCount(QModelIndex()); i++) {
