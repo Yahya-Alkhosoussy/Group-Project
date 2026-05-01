@@ -58,7 +58,11 @@ bool VRManager::start(const QString& manifestDir) {
 
     if (m_impl->active) { return true; } // The VR side is already online
     
-	if (!QDir(manifestDir).exists() || !QDir(manifestDir).exists("vtk_openvr_actions.json")) { 
+	if (!QDir(manifestDir).exists()) {
+		emit vrError("Manifest Directory does not exist. DIR: " + QString(manifestDir));
+		return false;
+	} 
+	if (!QDir(manifestDir).exists("vtk_openvr_actions.json")) {
 		emit vrError("Required Files do not exist.");
 		return false; 
 	} // required files aren't available
@@ -100,7 +104,7 @@ bool VRManager::start(const QString& manifestDir) {
 	m_impl->skybox = vtkSmartPointer<vtkSkybox>::New();
 	auto reader = vtkSmartPointer<vtkHDRReader>::New();
 
-	QString skyboxPath = QCoreApplication::applicationDirPath() + "/../assets/background.hdr";
+	QString skyboxPath = QCoreApplication::applicationDirPath() + "/assets/background.hdr";
 	qDebug() << "Skybox path:" << skyboxPath;
 	qDebug() << "Skybox exists:" << QFile::exists(skyboxPath);
 	reader->SetFileName(skyboxPath.toStdString().c_str());
