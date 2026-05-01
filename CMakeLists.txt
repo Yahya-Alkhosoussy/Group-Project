@@ -73,7 +73,26 @@ add_custom_command(TARGET GroupProject PRE_BUILD
           ${CMAKE_BINARY_DIR}/vrbindings
 )
 install(TARGETS GroupProject
-  RUNTIME DESTINATION bin
+    RUNTIME DESTINATION bin
+)
+
+# Copy all VTK DLLs
+install(DIRECTORY
+    "${CMAKE_SOURCE_DIR}/InstallerDLLs/vtkRelease/"
+    DESTINATION bin
+    FILES_MATCHING PATTERN "*.dll"
+)
+
+# Copy OpenVR DLL
+install(FILES
+    "${CMAKE_SOURCE_DIR}/InstallerDLLs/openvr_api.dll"
+    DESTINATION bin
+)
+
+# Copy Level0 folder
+install(DIRECTORY
+    "${CMAKE_SOURCE_DIR}/Level0/"
+    DESTINATION bin/Level0
 )
 
 include(InstallRequiredSystemLibraries)
@@ -82,7 +101,7 @@ set(CPACK_GENERATOR "NSIS")
 set(CPACK_PACKAGE_NAME "GroupProject")
 set(CPACK_PACKAGE_VENDOR "EEEE2076")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "EEEE2076 Group VR Project")
-set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_VERSION "1.0.1")
 set(CPACK_NSIS_DISPLAY_NAME "GroupProject")
 set(CPACK_NSIS_PACKAGE_NAME "GroupProject")
 set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
