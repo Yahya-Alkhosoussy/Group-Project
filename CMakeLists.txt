@@ -97,13 +97,18 @@ install(DIRECTORY
     DESTINATION bin/Level0
 )
 
+install(DIRECTORY 
+    "${CMAKE_SOURCE_DIR}/vrbindings/"
+    DESTINATION bin/vrbindings
+)
+
 include(InstallRequiredSystemLibraries)
 
 set(CPACK_GENERATOR "NSIS")
 set(CPACK_PACKAGE_NAME "GroupProject")
 set(CPACK_PACKAGE_VENDOR "EEEE2076")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "EEEE2076 Group VR Project")
-set(CPACK_PACKAGE_VERSION "1.0.1")
+set(CPACK_PACKAGE_VERSION "1.0.2")
 set(CPACK_NSIS_DISPLAY_NAME "GroupProject")
 set(CPACK_NSIS_PACKAGE_NAME "GroupProject")
 set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
