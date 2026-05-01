@@ -1,0 +1,6 @@
+/Users/yahyaamr/Documents/uni/Year 2/VR Project/group/Group-Project/build/CMakeFiles/GroupProject.dir
+/Users/yahyaamr/Documents/uni/Year 2/VR Project/group/Group-Project/build/CMakeFiles/package.dir
+/Users/yahyaamr/Documents/uni/Year 2/VR Project/group/Group-Project/build/CMakeFiles/install.dir
+/Users/yahyaamr/Documents/uni/Year 2/VR Project/group/Group-Project/build/CMakeFiles/GroupProject_autogen.dir
+/Users/yahyaamr/Documents/uni/Year 2/VR Project/group/Group-Project/build/CMakeFiles/ALL_BUILD.dir
+/Users/yahyaamr/Documents/uni/Year 2/VR Project/group/Group-Project/build/CMakeFiles/ZERO_CHECK.dir

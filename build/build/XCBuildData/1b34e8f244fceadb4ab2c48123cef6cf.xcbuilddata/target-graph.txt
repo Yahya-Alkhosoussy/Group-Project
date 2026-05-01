@@ -1,0 +1,7 @@
+Target dependency graph (3 targets)
+Target 'GroupProject' in project 'GroupProject'
+➜ Explicit dependency on target 'GroupProject_autogen' in project 'GroupProject'
+➜ Explicit dependency on target 'ZERO_CHECK' in project 'GroupProject'
+Target 'GroupProject_autogen' in project 'GroupProject'
+➜ Explicit dependency on target 'ZERO_CHECK' in project 'GroupProject'
+Target 'ZERO_CHECK' in project 'GroupProject' (no dependencies)
