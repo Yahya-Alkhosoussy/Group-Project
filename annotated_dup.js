@@ -1,6 +1,9 @@
 var annotated_dup =
 [
-    [ "VRManager", null, [
-      [ "Impl", "structVRManager_1_1Impl.html", "structVRManager_1_1Impl" ]
-    ] ]
+    [ "MainWindow", "classMainWindow.html", "classMainWindow" ],
+    [ "ModelPart", "classModelPart.html", "classModelPart" ],
+    [ "ModelPartList", "classModelPartList.html", "classModelPartList" ],
+    [ "OptionDialog", "classOptionDialog.html", "classOptionDialog" ],
+    [ "VRInteractorStyle", "classVRInteractorStyle.html", "classVRInteractorStyle" ],
+    [ "VRManager", "classVRManager.html", "classVRManager" ]
 ];
