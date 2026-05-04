@@ -30,7 +30,7 @@
 struct VRManager::Impl {
 	vtkSmartPointer<vtkOpenVRRenderWindow> renderWindow;
 	vtkSmartPointer<vtkOpenVRRenderWindowInteractor> interactor;
-	vtkSmartPointer<vtkOpenVRInteractorStyle> style;
+	vtkSmartPointer<VRInteractorStyle> style;
 	vtkSmartPointer<vtkOpenVRRenderer> renderer;
     vtkSmartPointer<vtkOpenVRCamera> camera;
 	vtkSmartPointer<vtkSkybox> skybox;
@@ -102,6 +102,25 @@ bool VRManager::start(const QString& manifestDir) {
 	myStyle->setManager(this);
 	m_impl->style = myStyle;
 	m_impl->interactor->SetInteractorStyle(m_impl->style);
+
+	// register custom action callbacks.
+	auto* iren = vtkOpenVRRenderWindowInteractor::SafeDownCast(
+		m_impl->renderWindow->GetInteractor()
+	);
+	if (iren) {
+		auto* style = m_impl->style.Get();
+
+		iren->AddAction("/actions/vtk/in/RightGripAction", /*isAnalog=*/false, 
+			[style](vtkEventData* ed) {
+				if (style) style->handleRightGrip(ed);
+			});
+
+		iren->AddAction("/actions/vtk/in/LeftGripAction", /*isAnalog=*/false,
+			[style](vtkEventData* ed) {
+				if (style) style->handleLeftGrip(ed);
+			});
+
+	}
 
 	if (m_impl->renderWindow->GetHMD() == nullptr) {
 		m_impl->interactor->TerminateApp();
