@@ -3,6 +3,11 @@
 #include "ui_optiondialog.h"
 #include <QColorDialog>
 
+/** @file
+* This file contains the definitions of the OptionDialog class
+*/
+
+
 OptionDialog::OptionDialog(QWidget *parent)
     : QDialog(parent),
     ui(new Ui::OptionDialog)

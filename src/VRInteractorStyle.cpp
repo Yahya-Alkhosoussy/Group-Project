@@ -4,6 +4,10 @@
 #include <vtkObjectFactory.h>
 #include <vtkEventData.h>
 
+/** @file
+* This file contains the definitions of the VRInteractorStyle class
+*/
+
 vtkStandardNewMacro(VRInteractorStyle);
 
 void VRInteractorStyle::OnMenu3D(vtkEventData* edata) {

@@ -22,6 +22,11 @@
 #include <vtkImageCast.h>
 #include <vtkImageShiftScale.h>
 
+/** @file
+* This file contains the definitions of the VRManager class
+*/
+
+
 struct VRManager::Impl {
 	vtkSmartPointer<vtkOpenVRRenderWindow> renderWindow;
 	vtkSmartPointer<vtkOpenVRRenderWindowInteractor> interactor;

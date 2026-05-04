@@ -24,6 +24,10 @@
 #include <QDir>
 #include <QFileInfoList>
 
+/** @file
+* This file contains the definitions of the MainWindow class
+*/
+
 
 
 MainWindow::MainWindow(QWidget *parent)
