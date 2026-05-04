@@ -4,6 +4,11 @@
 #include <QString>
 #include <QObject>
 
+
+/** @file
+* This file contains the declarations of the VRInteractorStyle class
+*/
+
 class vtkActor;
 
 /**

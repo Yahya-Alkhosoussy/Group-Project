@@ -8,6 +8,10 @@
 #include <QString>
 #include <QList>
 
+/** @file
+* This file contains the declarations of the VRInteractorStyle class
+*/
+
 /**
  * @class ModelPartList
  * @brief Qt tree model used to manage ModelPart objects.

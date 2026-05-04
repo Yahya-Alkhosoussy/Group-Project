@@ -5,6 +5,10 @@
 #include <QString>
 #include <QColor>
 
+/** @file
+* This file contains the declarations of the VRInteractorStyle class
+*/
+
 /**
  * @class OptionDialog
  * @brief Dialog for editing selected model part properties.

@@ -4,6 +4,9 @@
 
 class VRManager;
 
+/** @file
+* This file contains the declarations of the VRInteractorStyle class
+*/
 
 /**
  * @brief Custom interaction class for custom VR controls.

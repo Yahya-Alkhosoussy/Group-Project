@@ -14,6 +14,10 @@
 #include <vtkClipDataSet.h>
 #include <vtkPlane.h>
 
+/** @file
+* This file contains the declarations of the VRInteractorStyle class
+*/
+
   /**
    * @class ModelPart
    * @brief Represents one model item in the TreeView.
