@@ -29,9 +29,21 @@ struct VRManager::Impl {
 	vtkSmartPointer<vtkOpenVRRenderer> renderer;
     vtkSmartPointer<vtkOpenVRCamera> camera;
 	vtkSmartPointer<vtkSkybox> skybox;
+
+	/**
+	* @brief A set of actors that have been initialised to the Render
+	* 
+	* This is used to avoid adding the same actor twice.
+	*/
 	std::set<vtkActor*> initialisedActors;
+
+	/** @brief The timer that decides when a frame is rendered */
     QTimer* timer = nullptr;
+
+	/** @brief Whether or not the VR Rendering is active or not */
 	bool active = false;
+
+	/** @brief Whether or not the animation is active or not */
 	bool animating = false;
 };
 
