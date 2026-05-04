@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <QItemSelectionModel>
 #include <QDialog>
+#include <QProgressDialog>
 
 #include <QModelIndex>
 #include "optiondialog.h"
@@ -536,17 +537,41 @@ void MainWindow::on_actionOpenFolder_triggered()
 
     QFileInfoList files = dir.entryInfoList(filters, QDir::Files);
 
-    for (const QFileInfo& fileInfo : files)
-    {
+    if (files.isEmpty()) {
+        emit statusUpdateMessage("No STL files found in folder", 3000);
+        return;
+    }
+
+    // set up progress dialog
+    QProgressDialog progress(tr("Loading STL files..."), tr("Cancel"), 0, files.size(), this);
+
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(500); // don't show for fast loads
+    progress.setWindowTitle(tr("Loading"));
+
+    int loaded = 0;
+
+    for (int i = 0; i < files.size(); i++) {
+        if (progress.wasCanceled()) {
+            emit statusUpdateMessage(
+                tr("Loading cancelled after %1 files(s)").arg(loaded), 3000
+            );
+            break;
+        }
+        const QFileInfo& fileInfo = files[i];
         QString fileName = fileInfo.absoluteFilePath();
         QString shortName = fileInfo.fileName();
+        progress.setLabelText(tr("Loading %1...").arg(shortName));
+        progress.setValue(i);
 
         ModelPart* newPart = new ModelPart({ shortName, "true" });
 
         parentPart->appendChild(newPart);
 
         newPart->loadSTL(fileName);
+        loaded++;
     }
+    progress.setValue(files.size());
 
     partList->layoutChanged();
 
@@ -554,7 +579,7 @@ void MainWindow::on_actionOpenFolder_triggered()
 
     updateRender();
 
-    emit statusUpdateMessage("Folder loaded successfully", 3000);
+    emit statusUpdateMessage(tr("Folder loaded successfully (%1 files)").arg(loaded), 3000);
 }
 
 
