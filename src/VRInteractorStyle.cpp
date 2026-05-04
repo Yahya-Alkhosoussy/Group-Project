@@ -21,12 +21,28 @@ void VRInteractorStyle::OnMenu3D(vtkEventData* edata) {
 	}
 }
 
-void VRInteractorStyle::OnNextPose3D(vtkEventData* edata) {
-	// only react to press
-	auto bd = edata->GetAsEventDataDevice3D();
-	if (!bd) return; // no action
-	if (bd->GetAction() != vtkEventDataAction::Press) return;
+void VRInteractorStyle::handleRightGrip(vtkEventData* edata) {
+	auto* edd = edata->GetAsEventDataDevice3D();
+	if (!edd) return;
+	// make sure it's a press and from the right controller
+	if (edd->GetAction() != vtkEventDataAction::Press) return;
+	if (edd->GetDevice() != vtkEventDataDevice::RightController) return;
+
 	if (m_manager) {
 		m_manager->toggleAnimation();
 	}
+
+}
+
+void VRInteractorStyle::handleLeftGrip(vtkEventData* edata) {
+	auto* edd = edata->GetAsEventDataDevice3D();
+	if (!edd) return;
+	// make sure it's a press and from the right controller
+	if (edd->GetAction() != vtkEventDataAction::Press) return;
+	if (edd->GetDevice() != vtkEventDataDevice::LeftController) return;
+
+	if (m_manager) {
+		m_manager->toggleAnimation();
+	}
+
 }

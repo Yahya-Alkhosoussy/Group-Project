@@ -36,10 +36,17 @@ public:
 	void OnMenu3D(vtkEventData* edata) override;
 
 	/**
-	* @brief Handles a press of the VR controller's "next pose" button.
+	* @brief Handles a press of the VR controller's "Right Grip" button.
 	* @param edata VTK event data describing the controller and button state.
 	*/
-	void OnNextPose3D(vtkEventData* edata) override;
+	void handleRightGrip(vtkEventData* edata);
+
+	/**
+	* @brief Handles a press of the VR controller's "Left Grip" button.
+	* @param edata VTK event data describing the controller and button state.
+	*/
+	void handleLeftGrip(vtkEventData* edata);
+
 
 protected:
 	VRInteractorStyle() = default;
