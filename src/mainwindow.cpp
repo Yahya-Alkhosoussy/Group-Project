@@ -25,15 +25,7 @@
 #include <QFileInfoList>
 
 
-/**
- * MainWindow constructor
- * - Sets up the UI
- * - Creates the VTK render window and renderer
- * - Connects buttons and signals
- * - Creates the model-based TreeView
- * - Builds a demo tree structure
- * - Detects TreeView item selection
- */
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -175,19 +167,13 @@ MainWindow::MainWindow(QWidget *parent)
         });
 }
 
-/**
- * Destructor
- * Releases allocated UI resources
- */
+
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
-/**
-* Handling the clear button
-* This function handles what the clear button should do like clearing all the props from the renderers
-*/
+
 void MainWindow::handleClearButton()
 {
     if (renderer) {
@@ -200,10 +186,7 @@ void MainWindow::handleClearButton()
     emit statusUpdateMessage("Cleared renderer", 3000);
 }
 
-/**
-* Handling the reset view button
-* This function handles what the reset view button does.
-*/
+
 void MainWindow::handleResetViewButton()
 {
     if (!renderer || !renderWindow) {
@@ -218,10 +201,7 @@ void MainWindow::handleResetViewButton()
     emit statusUpdateMessage("View reset", 3000);
 }
 
-/**
-* Handling the toggle VR button
-* This function handles what the Toggle VR button does.
-*/
+
 void MainWindow::handleToggleVRButton()
 {
     if (m_vr->isActive()) {
@@ -244,11 +224,7 @@ void MainWindow::handleToggleVRButton()
 
 }
 
-/**
-* Pushing Actors to VR
-* This function pushes all loaded actors into VR.
-* @param index is the index of the actor that is in the partList object.
-*/
+
 void MainWindow::pushActorsToVR(const QModelIndex& index) {
     if (!index.isValid()) return; // do nothing
     QModelIndex idx0 = index.sibling(index.row(), 0);
@@ -267,11 +243,7 @@ void MainWindow::pushActorsToVR(const QModelIndex& index) {
 
 }
 
-/**
- * Slot triggered when the user clicks an item in the TreeView
- * Displays the selected item name in the status bar
- * @param index is the index of the actor that is in the partList object.
- */
+
 void MainWindow::handleTreeClicked(const QModelIndex &index)
 {
     // Convert the QModelIndex into the underlying ModelPart object
@@ -286,10 +258,7 @@ void MainWindow::handleTreeClicked(const QModelIndex &index)
         QString("The selected item is: ") + text, 0);
 }
 
-/**
-* Handling the item options action being triggered
-* This function handles what the app should do when the item options action is triggered.
-*/
+
 void MainWindow::on_actionItem_Options_triggered()
 {
     emit statusUpdateMessage(QString("Context menu: Options clicked"), 0);
@@ -343,10 +312,7 @@ void MainWindow::on_actionItem_Options_triggered()
     }
 }
 
-/**
-* Handling the open file action being triggered
-* This function handles what the app should do when the open file action is triggered.
-*/
+
 void MainWindow::on_actionOpenFile_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(
@@ -391,10 +357,7 @@ void MainWindow::on_actionOpenFile_triggered()
     emit statusUpdateMessage("Loaded STL: " + shortName, 3000);
 }
 
-/**
-* Updating the Render
-* This function handles how a new frame is rendered.
-*/
+
 void MainWindow::updateRender()
 {
     if (m_vr->isActive()) m_vr->clearActors();
@@ -408,10 +371,7 @@ void MainWindow::updateRender()
         ui->vtkWidget->renderWindow()->Render();
 }
 
-/**
-* Updating the Render from the tree
-* This function adds the objects from the tree to the new rendered frame.
-*/
+
 void MainWindow::updateRenderFromTree(const QModelIndex &index)
 {
     if (!index.isValid()) return;
@@ -440,10 +400,7 @@ void MainWindow::updateRenderFromTree(const QModelIndex &index)
     }
 }
 
-/**
-* handle when the item changed
-* This function handles how a change in an item is done.
-*/
+
 void MainWindow::handleItemChanged(const QModelIndex &topLeft,
                                    const QModelIndex &bottomRight,
                                    const QVector<int> &roles)
@@ -455,10 +412,7 @@ void MainWindow::handleItemChanged(const QModelIndex &topLeft,
     updateRender();
 }
 
-/**
-* handling the remove action being triggered
-* This function handles what the app does when the remove selected action gets triggered.
-*/
+
 void MainWindow::on_actionRemove_Selected_triggered()
 {
     QModelIndex index = ui->treeView->currentIndex();
@@ -477,19 +431,13 @@ void MainWindow::on_actionRemove_Selected_triggered()
     emit statusUpdateMessage("Selected item removed", 3000);
 }
 
-/**
-* handling the exit action being triggered
-* This function handles how the app reacts to the exit action being triggered.
-*/
+
 void MainWindow::on_actionExit_triggered()
 {
     QApplication::quit();
 }
 
-/**
-* handling the wireframe action being triggered
-* This function handles how the app reacts to the wireframe action being triggered.
-*/
+
 void MainWindow::on_actionWireframe_triggered()
 {
     QModelIndex index = ui->treeView->currentIndex();
@@ -550,10 +498,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     QMainWindow::keyPressEvent(event);
 }
 
-/**
-* handling the open folder action being triggered
-* This function handles how the app reacts to the open folder action being triggered.
-*/
+
 void MainWindow::on_actionOpenFolder_triggered()
 {
     QString folderPath = QFileDialog::getExistingDirectory(
@@ -608,11 +553,7 @@ void MainWindow::on_actionOpenFolder_triggered()
     emit statusUpdateMessage("Folder loaded successfully", 3000);
 }
 
-/**
-* handling the transparency slider
-* This function handles how the app reacts to changes in the transparency Slider.
-* @param value is the transparency value given by the slider.
-*/
+
 void MainWindow::handleTransparencySlider(int value)
 {
     QModelIndex index = ui->treeView->currentIndex();
@@ -645,10 +586,7 @@ void MainWindow::handleTransparencySlider(int value)
         1000);
 }
 
-/**
-* handling the show all button
-* This function handles the show all button.
-*/
+
 void MainWindow::handleShowAllButton()
 {
     updateRender();
